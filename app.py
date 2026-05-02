@@ -188,11 +188,11 @@ def forgot_password():
                     Notes App. 
                     """
 
-            emailSend(
-                to_email= email,
-                subject="Notes App password reset request!",
-                body = body
-            )
+            # emailSend(
+            #     to_email= email,
+            #     subject="Notes App password reset request!",
+            #     body = body
+            # )
             return redirect(url_for('login', msg = "check you email! Successfully \
                                     Password reset link send"))
         
