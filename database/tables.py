@@ -3,33 +3,29 @@ from database.connection import database_config, cursor
 def create_tables():
     users_table_query = """
         CREATE TABLE IF NOT EXISTS USERS(
-        USERID INT AUTO_INCREMENT,
-        USERNAME VARCHAR(35) NOT NULL,
-        EMAIL VARCHAR(30) NOT NULL UNIQUE,
-        PASSWORD VARCHAR(25),
-        PRIMARY KEY(USERID)
+        USERID INTEGER PRIMARY KEY AUTOINCREMENT,
+        USERNAME TEXT NOT NULL,
+        EMAIL TEXT NOT NULL UNIQUE,
+        PASSWORD TEXT
         );
     """
 
     notes_table_query = """
         CREATE TABLE IF NOT EXISTS NOTES (
-        NOTEID INT AUTO_INCREMENT,
-        USERID INT NOT NULL,
-        EMAIL VARCHAR(30) NOT NULL,
-        TITLE VARCHAR(100) NOT NULL,
-        CONTENT MEDIUMTEXT,
+        NOTEID INTEGER PRIMARY KEY AUTOINCREMENT,
+        USERID INTEGER NOT NULL,
+        EMAIL TEXT NOT NULL,
+        TITLE TEXT NOT NULL,
+        CONTENT TEXT,
         LAST_UPDATED TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        PRIMARY KEY (NOTEID),
         FOREIGN KEY (USERID) REFERENCES USERS(USERID)
             ON DELETE CASCADE
-            ON UPDATE CASCADE
         );
     """
 
-    # ✅ FIRST create USERS table
     cursor.execute(users_table_query)
-
-    # ✅ THEN create NOTES table
     cursor.execute(notes_table_query)
+
+    database_config.commit()   # ✅ VERY IMPORTANT
 
     print("tables created successfully")
