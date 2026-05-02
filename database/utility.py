@@ -1,17 +1,43 @@
 from database.connection import database_config, cursor
 
+
+
+
+
 # create function defionation for add data to table
-def addUser(username:str, email:str, password:str):
-    try:
-        add_user_query = """
-                INSERT INTO USERS(USERNAME, EMAIL, PASSWORD)
-                VALUES(%s, %s, %s);"""
-        cursor.execute(add_user_query, (username, email, password))
-        database_config.commit()
+# def addUser(username:str, email:str, password:str):
+#     try:
+#         add_user_query = """
+#                 INSERT INTO USERS(USERNAME, EMAIL, PASSWORD)
+#                 VALUES(%s, %s, %s);"""
+#         cursor.execute(add_user_query, (username, email, password))
+#         database_config.commit()
         
+#         return True
+#     except Exception as e:
+#         return f"Something wrong in database/utility.py:{e}"
+    
+
+
+def addUser(username, email, password):
+    try:
+        insert_query = """INSERT INTO USERS (USERNAME, EMAIL, PASSWORD)
+                          VALUES (?, ?, ?)"""
+        
+        cursor.execute(insert_query, (username, email, password))
+        
+        # 🔥 MUST HAVE THIS
+        database_config.commit()
+
+        print("User inserted successfully:", email)
+
         return True
+
     except Exception as e:
-        return f"Something wrong in database/utility.py:{e}"
+        print("Error in addUser:", e)
+        return False
+
+
     
 # check weather the user in users table or not
 def checkUserStatus(email: str):
@@ -52,60 +78,103 @@ def getPasswordFromDB(email: str):
     
 
 
-    
+
 
 # update password
-def updatePassword(email:str, new_password):
+# def updatePassword(email:str, new_password):
+#     try:
+#         update_password_query = """UPDATE USERS SET PASSWORD = %s 
+#                                     WHERE EMAIL = %s;"""
+#         cursor.execute(update_password_query,(new_password, email))
+#         row_count = cursor.rowcount
+#         print(row_count)
+#         if row_count == 1:
+#             database_config.commit()
+#             return True
+#         else:
+#             database_config.rollback()
+#             return False
+        
+        
+#     except Exception as e:
+#         return f"Something wrong in database/utility.py:{e}"
+
+
+def updatePassword(email: str, new_password):
     try:
-        update_password_query = """UPDATE USERS SET PASSWORD = %s 
-                                    WHERE EMAIL = %s;"""
-        cursor.execute(update_password_query,(new_password, email))
-        row_count = cursor.rowcount
-        print(row_count)
-        if row_count == 1:
+        query = "UPDATE USERS SET PASSWORD = ? WHERE EMAIL = ?;"
+        cursor.execute(query, (new_password, email))
+        
+        if cursor.rowcount == 1:
             database_config.commit()
             return True
         else:
             database_config.rollback()
             return False
-        
-        
-    except Exception as e:
-        return f"Something wrong in database/utility.py:{e}"
 
+    except Exception as e:
+        print("DB Error:", e)
+        return False
 
 
 
 
 
 def getNotesFromDB(email):
-    query = "SELECT noteid, title, content FROM notes WHERE email=%s"
+    query = "SELECT noteid, title, content FROM notes WHERE email=?"
     cursor.execute(query, (email,))
     return cursor.fetchall()
 
 
-def getNoteById(note_id, email):
-    query = """
-    SELECT noteid, title, content
-    FROM notes
-    WHERE noteid=%s AND email=%s
-    """
-    cursor.execute(query, (note_id, email))
-    return cursor.fetchone()
+# def getNoteById(note_id, email):
+#     query = """
+#     SELECT noteid, title, content
+#     FROM notes
+#     WHERE noteid=? AND email=?
+#     """
+#     cursor.execute(query, (note_id, email))
+#     return cursor.fetchone()
+
+
+
+# def updateNoteInDB(note_id, email, title, content):
+#     query = """
+#     UPDATE notes
+#     SET title=%s, content=%s
+#     WHERE noteid=%s AND email=%s
+#     """
+#     cursor.execute(query, (title, content, note_id, email))
+#     database_config.commit()
+#     return cursor.rowcount == 1
+
 def updateNoteInDB(note_id, email, title, content):
     query = """
     UPDATE notes
-    SET title=%s, content=%s
-    WHERE noteid=%s AND email=%s
+    SET title=?, content=?
+    WHERE noteid=? AND email=?
     """
     cursor.execute(query, (title, content, note_id, email))
     database_config.commit()
     return cursor.rowcount == 1
 
+
+
+
+
+# def deleteNoteFromDB(note_id, email):
+#     query = """
+#     DELETE FROM notes
+#     WHERE noteid=%s AND email=%s
+#     """
+#     cursor.execute(query, (note_id, email))
+#     database_config.commit()
+#     return cursor.rowcount == 1
+
+
 def deleteNoteFromDB(note_id, email):
     query = """
     DELETE FROM notes
-    WHERE noteid=%s AND email=%s
+    WHERE noteid=? AND email=?
     """
     cursor.execute(query, (note_id, email))
     database_config.commit()
@@ -113,29 +182,53 @@ def deleteNoteFromDB(note_id, email):
 
 
 ## add notes in note table
-def addNotesInDB(email:str, title:str, content:str):
-    # get userid from users table
+# def addNotesInDB(email:str, title:str, content:str):
+#     # get userid from users table
+#     try:
+#         get_userid_query = """select userid from users where email = %s;"""
+#         cursor.execute(get_userid_query,(email,))
+#         userid = cursor.fetchone()[0]
+#         add_notes_query = """insert into notes(userid, email, title, content)
+#                             values(%s, %s, %s, %s);"""
+#         cursor.execute(add_notes_query, (userid, email, title, content))
+#         database_config.commit()
+#         return True
+#     except:
+#         return False
+
+
+def addNotesInDB(email: str, title: str, content: str):
     try:
-        get_userid_query = """select userid from users where email = %s;"""
-        cursor.execute(get_userid_query,(email,))
-        userid = cursor.fetchone()[0]
-        add_notes_query = """insert into notes(userid, email, title, content)
-                            values(%s, %s, %s, %s);"""
-        cursor.execute(add_notes_query, (userid, email, title, content))
+        cursor.execute("SELECT userid FROM users WHERE email=?", (email,))
+        result = cursor.fetchone()
+
+        if not result:
+            return False
+
+        userid = result[0]
+
+        query = """INSERT INTO notes(userid, email, title, content)
+                   VALUES (?, ?, ?, ?)"""
+        cursor.execute(query, (userid, email, title, content))
         database_config.commit()
+
         return True
-    except:
+
+    except Exception as e:
+        print("DB Error:", e)
         return False
+
+
+
     
 
 
 # get content from DB using note_id
-
 def getNoteById(note_id, email):
     query = """
     SELECT noteid, title, content
     FROM notes
-    WHERE noteid=%s AND email=%s
+    WHERE noteid=? AND email=?
     """
     cursor.execute(query, (note_id, email))
     return cursor.fetchone()
