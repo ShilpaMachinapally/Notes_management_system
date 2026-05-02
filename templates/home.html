@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block body %}
+    <div>
+        <h2>Notes Management System</h2>
+        <p>here you can store the notes and update the notes</p>
+        <br>
+        <a href="{{ url_for('login') }}">Login Here</a>
+        <br>
+        <a href="{{ url_for('register') }}">Register </a>
+    </div>
+
+{% endblock %}

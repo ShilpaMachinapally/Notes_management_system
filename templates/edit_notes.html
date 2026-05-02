@@ -1,0 +1,8 @@
+<form method="POST"
+      action="{{ url_for('edit_note', note_id=note[0], token=token) }}">
+  
+  <input type="text" name="title" value="{{ note[1] }}" required>
+  <textarea name="content">{{ note[2] }}</textarea>
+
+  <button type="submit">Update Note</button>
+</form>
