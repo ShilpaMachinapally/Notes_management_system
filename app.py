@@ -103,11 +103,11 @@ def register():
                     Best Regards
                     Notes App. 
                     """
-            emailSend(
-                to_email=session['email'],
-                subject = "Notes Management OTP Verification",
-                body = body
-            )
+            # emailSend(
+            #     to_email=session['email'],
+            #     subject = "Notes Management OTP Verification",
+            #     body = body
+            # )
             return redirect(url_for('verifyOTP', token=session['register_otp_token']))
         return render_template('register.html', msg = "Username email already exist")
     return render_template('register.html')
