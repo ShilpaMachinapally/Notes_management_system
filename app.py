@@ -45,15 +45,19 @@ def home():
 
 def login():
     if request.method == 'POST':
-        email = request.form['username']   # or change input name to 'email'
+        email = request.form['username']
         password = request.form['password']
 
-        if checkUserStatus(username=email):
-            if getPasswordFromDB(username=email) == password:
+        if checkUserStatus(email=email):
+            if getPasswordFromDB(email=email) == password:
+                
+                # ✅ create token FIRST
                 token = serializer.dumps(
                     email,
                     salt='login-auth'
                 )
+
+                # ✅ then redirect
                 return redirect(url_for('dashboard', token=token))
 
             return render_template('login.html', msg="Invalid credentials")
@@ -61,8 +65,6 @@ def login():
         return render_template('login.html', msg="User not found")
 
     return render_template('login.html')
-
-
 
 
 # getnerate otp token
@@ -108,7 +110,7 @@ def register():
             #     subject = "Notes Management OTP Verification",
             #     body = body
             # )
-            return redirect(url_for('verifyOTP', token=session['register_otp_token']))
+            return render_template('verifyotp.html', token=token, msg=f"Your OTP is: {otp}")
         return render_template('register.html', msg = "Username email already exist")
     return render_template('register.html')
 

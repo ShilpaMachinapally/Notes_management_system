@@ -14,29 +14,44 @@ def addUser(username:str, email:str, password:str):
         return f"Something wrong in database/utility.py:{e}"
     
 # check weather the user in users table or not
-def checkUserStatus(username:str):
+def checkUserStatus(email: str):
     try:
         check_user_query = """SELECT USERID FROM USERS
-                            WHERE EMAIL = %s;"""
-        cursor.execute(check_user_query,(username,))
-        userid = cursor.fetchone() # (userid, )
+                             WHERE EMAIL = ?;"""
+        cursor.execute(check_user_query, (email,))
+        userid = cursor.fetchone()
+
         if userid:
             return True
         else:
             return False
+
     except Exception as e:
-        return f"Something wrong in database/utility.py:{e}"
+        print("DB Error:", e)   # better debugging
+        return False
+
+
 
 # get password from database
-def getPasswordFromDB(username:str):
+def getPasswordFromDB(email: str):
     try:
         get_password_query = """SELECT PASSWORD FROM USERS
-                            WHERE EMAIL = %s;"""
-        cursor.execute(get_password_query,(username,))
-        password = cursor.fetchone()[0] # (userid, )
-        return password
+                                WHERE EMAIL = ?;"""
+        
+        cursor.execute(get_password_query, (email,))
+        result = cursor.fetchone()
+
+        if result:
+            return result[0]
+        else:
+            return None
+
     except Exception as e:
-        return f"Something wrong in database/utility.py:{e}"
+        print("DB Error:", e)
+        return None
+    
+
+
     
 
 # update password
