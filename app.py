@@ -311,6 +311,10 @@ def delete_note(token, note_id):
 # @app.route('/logout', methods=['GET','POST'])
 # def logout():
 
+# if __name__ == '__main__':
+#     create_tables()
+#     app.run(debug = True, port =5004 )
+
 if __name__ == '__main__':
     create_tables()
-    app.run(debug = True, port =5004 )
+    app.run()
